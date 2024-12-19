@@ -70,6 +70,8 @@ contract Raffle is VRFConsumerBaseV2 {
     /** Events */
     event EnteredRaffle(address indexed player);
     event PickedWinner(address indexed winner);
+    event RequestedRaffleWinner(uint256 indexed requestId);
+
 
     constructor(uint256 entranceFee, uint256 interval, address vrfCoordinator, bytes32 gasLane, uint64 subscriptionId, uint32 callbackGasLimit) VRFConsumerBaseV2(vrfCoordinator) {
         i_entranceFee = entranceFee;
@@ -137,13 +139,15 @@ contract Raffle is VRFConsumerBaseV2 {
         s_raffleState = RaffleState.CALCULATING;
 
      
-        i_vrfCoordinaor.requestRandomWords(
+        uint256 requestId = i_vrfCoordinaor.requestRandomWords(
             i_gasLane,
             i_subscriptionId,
             REQUEST_CONFIRMATIONS,
             i_callbackGasLimit,
             NUM_WORDS
         );
+
+        emit RequestedRaffleWinner(requestId);
     }
 
     // CEI: Checks, Effects, Interactions
@@ -187,5 +191,6 @@ contract Raffle is VRFConsumerBaseV2 {
     function getPlayer(uint256 indexOfPlayer) external view returns(address) {
         return s_players[indexOfPlayer];
     }
+
 
 }
